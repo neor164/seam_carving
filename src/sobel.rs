@@ -1,6 +1,4 @@
-use image::GrayImage;
-
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum KernelType {
     X5,
     X3,
@@ -16,6 +14,7 @@ impl KernelType {
     }
 }
 
+#[derive(Debug)]
 struct Kernel {
     kernel_type: KernelType,
     patch: [u8; 25],
@@ -81,6 +80,7 @@ impl Kernel {
     }
 }
 
+#[derive(Debug)]
 pub struct Sobel {
     kernel_type: KernelType,
 }
@@ -97,11 +97,8 @@ impl Sobel {
         self
     }
 
-    pub fn apply(&self, image: &GrayImage) -> Vec<f32> {
+    pub fn apply(&self, image: &[u8], width: usize, height: usize) -> Vec<f32> {
         let mut kernel = Kernel::new(self.kernel_type);
-        let width = image.width() as usize;
-        let height = image.height() as usize;
-        let image = image.as_raw();
         let mut buf = vec![0.0; image.len()];
         let ksize = self.kernel_type.size();
         let b = ksize / 2;
@@ -133,6 +130,7 @@ impl Default for Sobel {
 mod tests {
     use super::*;
     use image::io::Reader as ImageReader;
+    use image::GrayImage;
     use rstest::rstest;
 
     #[rstest]
@@ -146,7 +144,7 @@ mod tests {
         let img = ImageReader::open(src_path).unwrap().decode().unwrap();
         let img = img.grayscale().into_luma8();
         let sobel = Sobel::new().kernel(kernel_type);
-        let result = sobel.apply(&img);
+        let result = sobel.apply(&img.as_raw(), img.width() as usize, img.height() as usize);
         let width = img.width();
         let height = img.height();
         let result = result.iter().map(|&x| x as u8).collect();

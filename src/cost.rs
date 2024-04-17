@@ -1,8 +1,10 @@
+#[derive(Debug, Clone, Copy)]
 pub enum Direction {
     Row,
     Column,
 }
 
+#[derive(Debug)]
 struct MapState {
     outer: usize,
     inner: usize,
@@ -250,6 +252,24 @@ mod tests {
         let row_path = vec![4, 8, 12, 16, 20];
         let mut col_path = row_path.clone();
         col_path.reverse();
+        let path = find_shortest_path(&energy, w, h, Direction::Row);
+        assert_eq!(row_path, path);
+        let path = find_shortest_path(&energy, w, h, Direction::Column);
+        assert_eq!(col_path, path);
+    }
+
+    #[test]
+    fn test_test_find_path_04() {
+        let w = 5;
+        let h = 3;
+        #[rustfmt::skip]
+        let energy = vec![
+            1., 8., 3., 4., 7.,
+            6., 2., 8., 12., 6.,
+            5., 7., 2., 13., 11.,
+        ];
+        let row_path = vec![0, 6, 12];
+        let col_path = vec![0, 6, 12, 8, 9];
         let path = find_shortest_path(&energy, w, h, Direction::Row);
         assert_eq!(row_path, path);
         let path = find_shortest_path(&energy, w, h, Direction::Column);
